@@ -221,7 +221,7 @@ let onIndex = 0;
 // --- Anchor datum za pravilno uskladitev Tzolkin ---
 const anchorDate = new Date("1800-01-01"); // 1.1.1800 = 10 Jaguar
 const anchorTone = 10; // 10 = Ix (tone za ta datum)
-const anchorSignIdx = 14; // Jaguar je 15. znak (če indeksiraš od 0, je 14)
+const anchorSignIdx = 14; // Jaguar je 14. znak (če indeksiraš od 0, je 14)
 
 const tzolkinNumbers = ["1","2","3","4","5","6","7","8","9","10","11","12","13"];
 const tzolkinSigns = ["Krokodil", "Veter", "Zora", "Kuščar", "Kača", "Smrt", "Jelen", "Zajec", "Voda", "Pes", "Opica", "Cesta", "Trsje", "Jaguar", "Orel","Sova","Zemlja","Ogledalo","Nevihta","Sonce"];
@@ -437,6 +437,24 @@ document.getElementById("startButton").onclick = () => {
   showOnboardingScreen();
 };
 
+// --- SHRANI VNOS ---
+function saveDailyEntry(date) {
+  const entry = document.getElementById("dailyEntry").value.trim();
+  if (!date) return;
+
+  // ključ po datumu YYYY-MM-DD
+  const key = "entry_" + date.toISOString().split("T")[0];
+  localStorage.setItem(key, entry);
+}
+
+// --- NALOŽI VNOS ---
+function loadDailyEntry(date) {
+  if (!date) return;
+  const key = "entry_" + date.toISOString().split("T")[0];
+  const saved = localStorage.getItem(key) || "";
+  document.getElementById("dailyEntry").value = saved;
+}
+
 // --- LOAD STATE ---
 window.onload = () => {
   // vedno najprej skrij vse
@@ -501,6 +519,9 @@ function updateDay() {
 
   updateHypnosis();
 
+// po vseh ostalih update-ih za dan
+loadDailyEntry(d);
+
   localStorage.setItem("cycle", currentCycle);
   localStorage.setItem("day", currentDayIndex);
 }
@@ -535,20 +556,24 @@ function prevDay() {
   updateDay();
 }
 
-// --- TZOLKIN ---
+// --- OFFSETI ---
+const numberOffset = 1; // za število
+const signOffset = 2;   // za znak
+
 function getTzolkinForDate(date) {
-  const diffDays = Math.floor((date - anchorDate) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor((date - anchorDate) / (1000*60*60*24));
 
-  const numberIndex = (anchorTone - 1 + diffDays) % 13;
-  const signIndex = (anchorSignIdx + diffDays) % 20;
+  // indexi z offseti
+  const numberIndex = (anchorTone - 1 + diffDays + numberOffset + 13) % 13;
+  const signIndex   = (anchorSignIdx + diffDays + signOffset + 20) % 20;
 
-  const number = tzolkinNumbers[(numberIndex + 13) % 13];
-  const sign = tzolkinSigns[(signIndex + 20) % 20];
+  const number    = tzolkinNumbers[numberIndex];
+  const sign      = tzolkinSigns[signIndex];
+  const numberImg = tzolkinNumberImages[numberIndex];
+  const signImg   = tzolkinSignImages[signIndex];
 
-  const numberImg = tzolkinNumberImages[(numberIndex + 13) % 13];
-  const signImg = tzolkinSignImages[(signIndex + 20) % 20];
-
-  const kinNumber = ((signIndex * 13) + numberIndex + 1) % 260;
+  // KIN šteje od 1 do 260, formula: (znak_index * 13 + število_index) + 1
+  const kinNumber = ((signIndex * 13 + numberIndex) % 260) + 1;
 
   return { number, sign, numberImg, signImg, kinNumber };
 }
@@ -598,6 +623,11 @@ function nextOnboarding() {
 
   showOnboardingScreen();
 }
+
+document.getElementById("dailyEntry").addEventListener("input", () => {
+  const currentDate = document.getElementById("dayDate").valueAsDate;
+  saveDailyEntry(currentDate);
+});
 
 // --- SERVICE WORKER ---
 if ("serviceWorker" in navigator) {
