@@ -191,6 +191,9 @@ button {
   <button onclick="nextDay()">Naprej</button>
 </div>
 
+<footer style="text-align:center; font-family:'Georgia', serif; font-size:14px; color:#555; font-style:italic; text-shadow: 0 1px 1px rgba(0,0,0,0.1); margin-top:40px;">
+  BLINKITA – BLINKITA BODY – ČAROVNIJA VITKOSTI, 2026
+</footer>
 
 <script>
 let currentDay = 0;
@@ -511,7 +514,7 @@ function updateDay() {
 
   // 🧠 tekst
   document.getElementById("tzolkinInfo").textContent =
-    `${tzolkin.number} ${tzolkin.sign} – KIN ${tzolkin.kinNumber}`;
+    `${tzolkin.number} ${tzolkin.sign}`;
 
   // ✨ pomen (premium občutek)
   document.getElementById("tzolkinMeaning").textContent =
@@ -630,7 +633,23 @@ document.getElementById("dailyEntry").addEventListener("input", () => {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 }
-  
+
+// --- AUTOMATSKI PREMIUM FOOTER ---
+(function() {
+  const footer = document.createElement("footer");
+  footer.style.textAlign = "center";
+  footer.style.fontFamily = "'Georgia', serif";
+  footer.style.fontSize = "14px";
+  footer.style.color = "#555";
+  footer.style.fontStyle = "italic";
+  footer.style.textShadow = "0 1px 1px rgba(0,0,0,0.1)";
+  footer.style.marginTop = "40px";
+  footer.style.padding = "20px 0";
+
+  footer.textContent = "BLINKITA – BLINKITA BODY – ČAROVNIJA VITKOSTI, 2026";
+
+  document.body.appendChild(footer);
+})();
 </script>
 </body>
 </html>
