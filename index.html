@@ -581,8 +581,6 @@ function updateDay() {
   updateHypnosis();
 
 // 🔹 POČISTI input za dnevnik pred nalaganjem vnosa
-  const dailyInput = document.getElementById("dailyEntry");
-  dailyInput.value = "";        // vedno najprej počisti
   loadDailyEntry(d);            // nato naloži vnos za ta datum
 
   localStorage.setItem("cycle", currentCycle);
@@ -611,21 +609,20 @@ function nextDay() {
 }
 
 function prevDay() {
+  function prevDay() {
   const currentDate = new Date(startDate);
   currentDate.setDate(currentDate.getDate() + currentCycle * daysPerCycle + currentDayIndex);
   saveDailyEntry(currentDate); // shrani pred premikom
 
-  currentDayIndex++;
-  if (currentDayIndex >= daysPerCycle) {
-    currentDayIndex = 0;
-    currentCycle++;
-    if (currentCycle >= totalCycles) {
-      alert("Zaključila si vseh 5 ciklov ✨");
-      return;
-    } else {
-      alert("Nov cikel ✨");
-    }
+  if (currentDayIndex > 0) {
+    currentDayIndex--;
+  } else if (currentCycle > 0) {
+    currentCycle--;
+    currentDayIndex = daysPerCycle - 1;
   }
+
+  updateDay();
+}
 
 // --- OFFSETI ---
 const numberOffset = 0; // za število
@@ -692,9 +689,6 @@ function nextOnboarding() {
   showOnboardingScreen();
 }
 
-document.getElementById("dailyEntry").addEventListener("input", () => {
-  const currentDate = document.getElementById("dayDate").valueAsDate;
-  saveDailyEntry(currentDate);
 });
 
 // --- SERVICE WORKER ---
