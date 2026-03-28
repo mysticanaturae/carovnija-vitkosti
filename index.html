@@ -241,7 +241,6 @@ function getTzolkinForDate(date) {
     meaning: tzolkinMeanings[tzolkinSigns[signIdx]]
   };
 }
-
 const tzolkinNumbers = ["1","2","3","4","5","6","7","8","9","10","11","12","13"];
 const tzolkinSigns = ["Krokodil", "Veter", "Zora", "Kuščar", "Kača", "Smrt", "Jelen", "Zajec", "Voda", "Pes", "Opica", "Cesta", "Trsje", "Jaguar", "Orel","Sova","Zemlja","Ogledalo","Nevihta","Sonce"];
 
@@ -600,6 +599,29 @@ function loadDay() {
   document.getElementById("schedule").value = data.schedule || "";
 }
 
+// --- Anchor datum za pravilno uskladitev Tzolkin ---
+const anchorDate = new Date("1800-01-01"); // 1.1.1800 = 10 Jaguar
+const anchorTone = 10; // 10 = Ix (tone za ta datum)
+const anchorSignIdx = 14; // Jaguar je 15. znak (če indeksiraš od 0, je 14)
+
+// --- OFFSET za poravnavo Tzolkin dnevov ---
+const tzolkinOffset = 1; // dodaj 1, da bo 27.3. = 12 Kuščar
+
+function getTzolkinForDate(date) {
+  const diff = Math.floor((date - anchorDate) / (1000 * 60 * 60 * 24));
+  
+  // Izračun indeksa števila in znaka z offset-om
+  const numberIdx = (anchorTone - 1 + diff + tzolkinOffset) % 13;
+  const signIdx = (anchorSignIdx + diff + tzolkinOffset) % 20;
+  
+  return {
+    number: tzolkinNumbers[numberIdx],
+    sign: tzolkinSigns[signIdx],
+    numberImg: tzolkinNumberImages[numberIdx],
+    signImg: tzolkinSignImages[signIdx],
+    meaning: tzolkinMeanings[tzolkinSigns[signIdx]]
+  };
+}
 
 // --- HIPNOZE ---
 function updateHypnosis() {
