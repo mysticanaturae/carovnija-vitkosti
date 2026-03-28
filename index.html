@@ -462,24 +462,58 @@ document.getElementById("startButton").onclick = () => {
   showOnboardingScreen();
 };
 
-// --- SHRANI VNOS ---
+// --- SHRANI VNOS ZA TA DAN ---
 function saveDailyEntry(date) {
-  const entry = document.getElementById("dailyEntry").value.trim();
   if (!date) return;
 
-  // ključ po datumu YYYY-MM-DD
   const key = "entry_" + date.toISOString().split("T")[0];
-  localStorage.setItem(key, entry);
+
+  const entry = {
+    feedBody: document.getElementById("feedBody").value.trim(),
+    feedMind: document.getElementById("feedMind").value.trim(),
+    feedSoul: document.getElementById("feedSoul").value.trim(),
+    feedSpirit: document.getElementById("feedSpirit").value.trim(),
+    observations: document.getElementById("observations").value.trim(),
+    schedule: document.getElementById("schedule").value.trim(),
+    massage: document.getElementById("massage").checked,
+    hypnosis: document.getElementById("hypnosis").checked,
+    other: document.getElementById("other").checked
+  };
+
+  localStorage.setItem(key, JSON.stringify(entry));
 }
 
-// --- NALOŽI VNOS ---
+// --- NALOŽI VNOS ZA TA DAN ---
 function loadDailyEntry(date) {
   if (!date) return;
-  const key = "entry_" + date.toISOString().split("T")[0];
-  const saved = localStorage.getItem(key) || "";
-  document.getElementById("dailyEntry").value = saved;
-}
 
+  const key = "entry_" + date.toISOString().split("T")[0];
+  const saved = localStorage.getItem(key);
+
+  if (saved) {
+    const entry = JSON.parse(saved);
+    document.getElementById("feedBody").value = entry.feedBody || "";
+    document.getElementById("feedMind").value = entry.feedMind || "";
+    document.getElementById("feedSoul").value = entry.feedSoul || "";
+    document.getElementById("feedSpirit").value = entry.feedSpirit || "";
+    document.getElementById("observations").value = entry.observations || "";
+    document.getElementById("schedule").value = entry.schedule || "";
+    document.getElementById("massage").checked = entry.massage || false;
+    document.getElementById("hypnosis").checked = entry.hypnosis || false;
+    document.getElementById("other").checked = entry.other || false;
+  } else {
+    // če še ni vnosa, počisti polja
+    document.getElementById("feedBody").value = "";
+    document.getElementById("feedMind").value = "";
+    document.getElementById("feedSoul").value = "";
+    document.getElementById("feedSpirit").value = "";
+    document.getElementById("observations").value = "";
+    document.getElementById("schedule").value = "";
+    document.getElementById("massage").checked = false;
+    document.getElementById("hypnosis").checked = false;
+    document.getElementById("other").checked = false;
+  }
+}
 // --- LOAD STATE ---
 window.onload = () => {
   // vedno najprej skrij vse
@@ -509,6 +543,8 @@ window.onload = () => {
     document.getElementById("intro").classList.remove("hidden");
   }
 };
+
+
 
 // --- UPDATE DAY ---
 function updateDay() {
@@ -555,12 +591,14 @@ function updateDay() {
 
 // --- NAVIGACIJA ---
 function nextDay() {
-  currentDayIndex++;
+  const currentDate = new Date(startDate);
+  currentDate.setDate(currentDate.getDate() + currentCycle * daysPerCycle + currentDayIndex);
+  saveDailyEntry(currentDate); // shrani pred premikom
 
+  currentDayIndex++;
   if (currentDayIndex >= daysPerCycle) {
     currentDayIndex = 0;
     currentCycle++;
-
     if (currentCycle >= totalCycles) {
       alert("Zaključila si vseh 5 ciklov ✨");
       return;
@@ -573,15 +611,21 @@ function nextDay() {
 }
 
 function prevDay() {
-  if (currentDayIndex > 0) {
-    currentDayIndex--;
-  } else if (currentCycle > 0) {
-    currentCycle--;
-    currentDayIndex = daysPerCycle - 1;
-  }
+  const currentDate = new Date(startDate);
+  currentDate.setDate(currentDate.getDate() + currentCycle * daysPerCycle + currentDayIndex);
+  saveDailyEntry(currentDate); // shrani pred premikom
 
-  updateDay();
-}
+  currentDayIndex++;
+  if (currentDayIndex >= daysPerCycle) {
+    currentDayIndex = 0;
+    currentCycle++;
+    if (currentCycle >= totalCycles) {
+      alert("Zaključila si vseh 5 ciklov ✨");
+      return;
+    } else {
+      alert("Nov cikel ✨");
+    }
+  }
 
 // --- OFFSETI ---
 const numberOffset = 0; // za število
