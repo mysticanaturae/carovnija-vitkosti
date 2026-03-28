@@ -14,7 +14,9 @@ body { font-family: 'Raleway', sans-serif; background: #ffe6f0; margin:0; paddin
 h1, h2, h3 { font-family: 'Great Vibes', cursive; color:#d6336c; }
 .container { max-width:800px; margin: 0 auto; padding:20px; }
 button { background:#d6336c; color:white; border:none; padding:10px 20px; margin:5px; border-radius:10px; cursor:pointer; }
-.hidden { display:none; }
+.hidden {
+  display: none !important;
+}
   
 .tzolkin-display img {
   max-width: 80px;
@@ -410,16 +412,31 @@ document.getElementById("startButton").onclick = () => {
 
 // --- LOAD STATE ---
 window.onload = () => {
+  // vedno najprej skrij vse
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("onboarding").classList.add("hidden");
+  document.getElementById("journey").classList.add("hidden");
+
   const savedDate = localStorage.getItem("startDate");
+
   if (savedDate) {
     startDate = new Date(savedDate);
     currentCycle = parseInt(localStorage.getItem("cycle")) || 0;
     currentDayIndex = parseInt(localStorage.getItem("day")) || 0;
 
-    document.getElementById("intro").classList.add("hidden");
-    document.getElementById("journey").classList.remove("hidden");
+    const onboardingDone = localStorage.getItem("onboardingDone") === "true";
 
-    updateDay();
+    if (onboardingDone) {
+      document.getElementById("journey").classList.remove("hidden");
+      updateDay();
+    } else {
+      document.getElementById("onboarding").classList.remove("hidden");
+      onIndex = 0;
+      showOnboardingScreen();
+    }
+  } else {
+    // če še ni nič shranjeno → pokaži intro
+    document.getElementById("intro").classList.remove("hidden");
   }
 };
 
