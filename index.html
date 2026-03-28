@@ -522,8 +522,10 @@ function updateDay() {
 
   updateHypnosis();
 
-// po vseh ostalih update-ih za dan
-loadDailyEntry(d);
+// 🔹 POČISTI input za dnevnik pred nalaganjem vnosa
+  const dailyInput = document.getElementById("dailyEntry");
+  dailyInput.value = "";        // vedno najprej počisti
+  loadDailyEntry(d);            // nato naloži vnos za ta datum
 
   localStorage.setItem("cycle", currentCycle);
   localStorage.setItem("day", currentDayIndex);
