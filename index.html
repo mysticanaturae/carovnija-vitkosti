@@ -9,6 +9,8 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 body { font-family: 'Raleway', sans-serif; background: #ffe6f0; margin:0; padding:0; }
 h1, h2, h3 { font-family: 'Great Vibes', cursive; color:#d6336c; }
@@ -254,6 +256,21 @@ button:hover {
  <div class="nav-buttons">
   <button onclick="prevDay()">Nazaj</button>
   <button onclick="nextDay()">Naprej</button>
+</div>
+
+<div id="hypnosisPlayer" class="hidden" style="
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.9);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:999;
+">
+  <button onclick="closeHypnosis()" style="margin-bottom:20px;">Zapri</button>
+  <iframe id="hypnosisFrame" width="80%" height="60%" style="border:none;"></iframe>
 </div>
 
 <div style="text-align:center; margin: 20px 0;">
@@ -549,25 +566,53 @@ function saveDailyEntry(date) {
 }
 
 document.getElementById("exportBtn").onclick = () => {
+  const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
-  pdf.setFontSize(12);
-  pdf.text("Moj 21-dnevni dnevnik", 10, 10);
+
+  let y = 10;
+
+  pdf.setFont("Helvetica");
+  pdf.setFontSize(16);
+  pdf.text("Moj 21-dnevni dnevnik", 10, y);
+
+  y += 10;
 
   for (let i = 0; i < daysPerCycle; i++) {
     const date = new Date(startDate);
     date.setDate(date.getDate() + i);
+
     const key = "entry_" + date.toISOString().split("T")[0];
     const entry = JSON.parse(localStorage.getItem(key) || "{}");
-    
-    pdf.text(`\nDan ${i + 1} – ${date.toDateString()}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 10 : 20);
-    pdf.text(`Telo: ${entry.feedBody || ""}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 20 : 30);
-    pdf.text(`Mind: ${entry.feedMind || ""}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 30 : 40);
-    pdf.text(`Soul: ${entry.feedSoul || ""}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 40 : 50);
-    pdf.text(`Spirit: ${entry.feedSpirit || ""}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 50 : 60);
-    pdf.text(`Opombe: ${entry.observations || ""}`, 10, pdf.lastAutoTable ? pdf.lastAutoTable.finalY + 60 : 70);
+
+    if (y > 270) { // nova stran
+      pdf.addPage();
+      y = 10;
+    }
+
+    pdf.setFontSize(12);
+    pdf.text(`Dan ${i + 1} – ${date.toLocaleDateString()}`, 10, y);
+    y += 6;
+
+    pdf.setFontSize(10);
+
+    const addText = (label, value) => {
+      if (!value) return;
+      const lines = pdf.splitTextToSize(`${label}: ${value}`, 180);
+      pdf.text(lines, 10, y);
+      y += lines.length * 5;
+    };
+
+    addText("Telo", entry.feedBody);
+    addText("Um", entry.feedMind);
+    addText("Duša", entry.feedSoul);
+    addText("Duh", entry.feedSpirit);
+    addText("Spoznanja", entry.observations);
+    addText("Koledar", entry.schedule);
+
+    y += 5;
   }
 
-  pdf.save("Moj_21-dnevni_dnevnik.pdf");
+  pdf.save("Moj_dnevnik.pdf");
 };
 
 // --- NALOŽI VNOS ZA TA DAN ---
@@ -820,8 +865,26 @@ function updateHypnosis() {
   if (cycleHypnosis[currentCycle]) {
     cycleHypnosis[currentCycle].forEach(link => {
       const btn = document.createElement("button");
-      btn.textContent = "Prenesi hipnozo";
-      btn.onclick = () => window.open(link);
+      btn.textContent = "Poslušaj hipnozo";
+
+      btn.onclick = () => openHypnosis(link);
+
+      container.appendChild(btn);
+    });
+  }
+}
+
+function updateHypnosis() {
+  const container = document.getElementById("hypnosisContainer");
+  container.innerHTML = "";
+
+  if (cycleHypnosis[currentCycle]) {
+    cycleHypnosis[currentCycle].forEach(link => {
+      const btn = document.createElement("button");
+      btn.textContent = "Poslušaj hipnozo";
+
+      btn.onclick = () => openHypnosis(link);
+
       container.appendChild(btn);
     });
   }
