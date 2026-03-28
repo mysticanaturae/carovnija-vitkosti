@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d6336c">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Čarovnija vitkosti</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Raleway:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body { font-family: 'Raleway', sans-serif; background: #ffe6f0; margin:0; padding:0; }
+h1, h2, h3 { font-family: 'Great Vibes', cursive; color:#d6336c; }
+.container { max-width:800px; margin: 0 auto; padding:20px; }
+button { background:#d6336c; color:white; border:none; padding:10px 20px; margin:5px; border-radius:10px; cursor:pointer; }
+.hidden { display:none; }
+  
+.tzolkin-display img {
+  max-width: 80px;
+  height: auto;
+  margin: 0 10px;
+}
+  
+.tzolkin-display img {
+  max-width: 80px;
+  height: auto;
+  margin: 0 10px;
+}
+  
+#journey {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* prostor med bloki */
+}
+
+#journey label, 
+#journey textarea, 
+#journey input, 
+#journey .activities {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #d6336c;
+  resize: vertical;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.date-row {
+  margin-bottom: 20px;
+}
+  
+.tzolkin-display {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+#tzolkinInfo {
+  flex: 1;
+  font-style: italic;
+  color: #6a1b4d;
+}
+  
+  .tzolkin-display {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+#tzolkinInfo {
+  flex: 1;
+  font-style: italic;
+  color: #6a1b4d;
+}
+  
+  .input-block {
+  margin-bottom: 20px;
+}
+  
+</style>
+</head>
+  
+<body>
+<div class="container">
+
+  <!-- UVODNA STRAN -->
+  <div id="intro" class="card">
+    <h1>Čarovnija vitkosti</h1>
+    <p>Dobrodošla v tvoji 21-dnevni transformaciji. Tukaj boš odkrivala, kako telo, um, duša in duh sodelujejo v harmoniji.</p>
+    <input type="text" id="accessCode" placeholder="Vnesi kodo po nakupu" />
+<input type="text" id="userName" placeholder="Tvoje ime" />
+<input type="date" id="startDate" />
+<button id="startButton">Odkleni potovanje</button>
+  </div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="hidden card">
+<h2 id="onTitle"></h2>
+<p id="onText"></p>
+<button onclick="nextOnboarding()">Nadaljuj</button>
+</div>
+
+  <div id="journey" class="hidden">
+
+  <h2 id="dayTitle"></h2>
+
+  <p id="dailyFact" style="font-style:italic; color:#6a1b4d;"></p>
+
+  <div class="date-row">
+    <label>Datum:</label>
+    <input type="date" id="dayDate" />
+  </div>
+
+  <p id="dayTask" style="font-weight:600; color:#d6336c;"></p>
+
+  <div class="tzolkin-display">
+    <img id="tzolkinNumberImg" width="30">
+    <img id="tzolkinSignImg" width="60">
+    <div id="tzolkinInfo" style="font-style:italic;"></div>
+  </div>
+
+  <div id="tzolkinMeaning" style="font-style:italic; margin-top:5px;"></div>
+
+  <!-- 🔥 JOURNALING -->
+  <label>S čim si nahranila:</label>
+  <textarea id="feedBody" placeholder="Tvoje telo"></textarea>
+  <textarea id="feedMind" placeholder="Tvoj um"></textarea>
+  <textarea id="feedSoul" placeholder="Tvoja duša"></textarea>
+  <textarea id="feedSpirit" placeholder="Tvoj duh"></textarea>
+
+  <label>Aktivnosti:</label>
+  <div class="activities">
+    <label><input type="checkbox" id="massage"/> Masaža</label>
+    <label><input type="checkbox" id="hypnosis"/> Hipnoza</label>
+    <label><input type="checkbox" id="other"/> Drugo</label>
+  </div>
+
+  <div class="dual-box">
+    <textarea id="observations" placeholder="Tvoja spoznanja..."></textarea>
+    <textarea id="schedule" placeholder="Koledar dneva..."></textarea>
+  </div>
+
+  <!-- HIPNOZA -->
+  <div id="hypnosisContainer"></div>
+
+</div>
+  
+<br>
+<button onclick="prevDay()">Nazaj</button>
+<button onclick="nextDay()">Naprej</button>
+  
+</div>
+
+<script>
+let currentDay = 0;
+const totalDays = 21;
+  
+// ONBOARDING
+const onboardingScreens = [
+{
+title:"Če si tukaj… nekaj v tebi že ve",
+text:"Ne iščeš še ene diete. Iščeš občutek, da si končno doma v svojem telesu."
+},
+{
+title:"Ni problem v tebi",
+text:"Sistem te je naučil kontrole, ne povezave. Zato se vedno vrneš na začetek."
+},
+{
+title:"Ta pot je drugačna",
+text:"Ne boš popravljala telesa. Spomnila se boš, kako biti v njem."
+},
+{
+title:"Odločitev",
+text:"To deluje samo, če si res tukaj. Si pripravljena iti do konca?"
+}
+];
+
+let onIndex = 0;
+  
+// --- Anchor datum za pravilno uskladitev Tzolkin ---
+const anchorDate = new Date("1800-01-01"); // 1.1.1800 = 10 Jaguar
+const anchorTone = 10; // 10 = Ix (tone za ta datum)
+const anchorSignIdx = 14; // Jaguar je 15. znak (če indeksiraš od 0, je 14)
+
+const tzolkinNumbers = ["1","2","3","4","5","6","7","8","9","10","11","12","13"];
+const tzolkinSigns = ["Krokodil", "Veter", "Zora", "Kuščar", "Kača", "Smrt", "Jelen", "Zajec", "Voda", "Pes", "Opica", "Cesta", "Trsje", "Jaguar", "Orel","Sova","Zemlja","Ogledalo","Nevihta","Sonce"];
+
+const tzolkinNumberImages = [
+  "https://static.wixstatic.com/media/7535eb_8128aa403fb34a39a9abf4c539e07d4e~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_58d9713024fd44e3b574ed6e66319df3~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_fa772de6b389412a874060866aafe0d0~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_034123a9c80d497da70e29c529f761ab~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_0949be53659a4112b79aeaf88fba4182~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_31c0710a2c40451c8be0474fca598690~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_abc754938a3c47e5a3b497a802fbbc09~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_a195a39082484f0eafd271594204fd99~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_62f1b1f66190462faf5af9be6f04e3f3~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_630ea6308de14ff089b351e4f1967594~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_b098132554904e4d8d689176145249a0~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_6cf0d4b4439a46eb952d52e6cd02bb28~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_a5b6f5b75b254f1ca65fbe7cafb8086e~mv2.png"
+];
+const tzolkinSignImages = [
+  "https://static.wixstatic.com/media/7535eb_8b15827f3f0749f58b47edf2ec8ff34a~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_da5c22d0b20c4650ae78bd78d44bdf90~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_1431fb4ee97a418383209553a73974e5~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_63fa92348cef45778a33ea8df474f3b8~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_b144e80ceccc4304b10027e8d2f1e674~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_9eda107ea6ed46e8880d6cd3394b3eca~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_498008e2e9fb4c7ebc66e4a2cf25a1d4~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_a86c9fe89c5f4f4d8a810c284e40bf13~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_b1612f1d298245a483212ca3997b6872~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_fcf459036d31451fb913cd556bdf98b1~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_c5e4c01f59e74424806a8b82d55ea9c9~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_8b1bd5f0bebf4e9e84734d0dd7c18a55~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_5a43cbda692c4bff8790b8d4fe769ec5~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_891ac2c5109f44c8927f69170b93aa78~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_bcc1d28cea634696895554c9f25a2788~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_acd453dcd54e4ca29483cb610e3bab2e~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_d413aa3902864a09a3c2bb1ae2996b53~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_57d9eafe0dd249ddb5194e43a629e516~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_413ee006283f479dbb46cc737b796bb4~mv2.png",
+  "https://static.wixstatic.com/media/7535eb_18fc81a965aa4e69974f11d5bb68dc60~mv2.png"
+];
+
+  const tzolkinMeanings = {
+  "Krokodil": "Začni. Rojstvo nove energije. Začni svoje potovanje k vitkosti. Tvoje telo sprejema svežo energijo, ki te prebuja.",
+  "Veter": "Dihaj. Komuniciraj. Povej resnico. Dihaj globoko, sprosti napetosti. Telo ti sporoča resnico skozi dihanje in gibanje.",
+  "Zora": "Odpri se novim začetkom. Svež pogled. Vsak dan je priložnost, da osvežiš telo in misli. Poglej nase s svežimi očmi.",
+  "Kuščar": "Sledi instinktu. Preživi. Zaupaj svojemu telesu. Intuicija ti pove, kaj res potrebuješ.",
+  "Kača": "Aktiviraj telo. Prebudi energijo. Tvoja življenjska sila se prebudi. Gibaj se in čuti energijo, ki te oblikuje.",
+  "Smrt": "Transformiraj. Spusti staro. Odvrzi vzorce, ki ti več ne služijo. Ustvari prostor za novo vitalnost.",
+  "Jelen": "Najdi mir. Ustvari stabilnost. Ko si mirna, tvoje telo in duh ustvarjata stabilnost, ki podpira spremembe.",
+  "Zajec": "Prisluhni telesu in čustvom. Občutki in intuicija te vodijo k boljšim odločitvam za tvoje zdravje in gibanje.",
+  "Voda": "Dovoli energiji, da teče. Čustva in gibanje se zlijejo, ko si sproščena.",
+  "Pes": "Ljubi sebe in svoje telo. Skupaj z ljubeznijo prihaja lahkotnost in vitalnost.",
+  "Opica": "Uživaj proces. Gibanje naj bo igra, ne prisila.",
+  "Cesta": "Vsaka odločitev za tvoje zdravje je korak proti lahkotnejšemu in vitalnejšemu telesu.",
+  "Trsje": "Vztrajaj pri svojih navadah. Integriteta ustvarja moč in trajne spremembe.",
+  "Jaguar": "Poveži se s svojo notranjo močjo. Prebudi vitalnost, ki te preobraža.",
+  "Orel": "Opazuj celoto. Vsaka izbira gibanja in prehrane je del tvoje vizije.",
+  "Sova": "Prisluhni modrosti svojega telesa. Spoznaj, kdaj potrebuje počitek in regeneracijo.",
+  "Zemlja": "Ostani prisotna. Tvoje prehranjevanje in gibanje deluje najbolje zdaj.",
+  "Ogledalo": "Tvoje telo odraža tvoje navade. Sprejmi resnico in oblikuj spremembo.",
+  "Nevihta": "Sproži preobrazbo. Izzivi te učijo, kako ustvariti vitko in močno telo.",
+  "Sonce": "Zavest o telesu ti prinaša energijo, vitalnost in harmonijo."
+};
+
+const dailyContent = [
+  
+/* --- 1–7 ZAVEDANJE --- */
+
+{
+fact:"Danes nič ne spreminjaj.",
+task:"Samo opazuj – kdaj ješ brez lakote?"
+},
+{
+fact:"Telo nikoli ne laže.",
+task:"Ko želiš sladko – vprašaj: kaj v resnici potrebujem?"
+},
+{
+fact:"Hitrost te odklopi od telesa.",
+task:"Pojej en obrok počasi. Brez telefona."
+},
+{
+fact:"Lakota ni vedno fizična.",
+task:"Pred vsakim obrokom se ustavi in preveri: lakota ali čustvo?"
+},
+{
+fact:"Navade te vodijo bolj kot odločitve.",
+task:"Opazuj, kaj narediš avtomatsko – brez razmišljanja."
+},
+{
+fact:"Telo si zapomni vse.",
+task:"Kje v telesu čutiš napetost danes?"
+},
+{
+fact:"Resnica pride v tišini.",
+task:"Vzemi 5 minut brez telefona. Samo bodi."
+
+},
+
+/* --- 8–14 RAZBIJANJE VZORCEV --- */
+
+{
+fact:"Ne potrebuješ kontrole.",
+task:"Danes izpusti en ‘pravilo’, ki si ga držala."
+},
+{
+fact:"Hrana ni sovražnik.",
+task:"Pojej nekaj brez občutka krivde. Opazuj občutek."
+},
+{
+fact:"Telo sodeluje, ne sabotira.",
+task:"Zapiši 3 stvari, ki jih tvoje telo dela prav."
+},
+{
+fact:"Lakota pride in gre.",
+task:"Ko začutiš željo – počakaj 10 minut."
+},
+{
+fact:"Čustva niso problem.",
+task:"Namesto hrane – sedi z občutkom 3 minute."
+},
+{
+fact:"Ne rabiš popolnosti.",
+task:"Dovoli si ‘nepopoln’ dan brez kaznovanja."
+},
+{
+fact:"Stara zgodba se ponavlja.",
+task:"Ujemi misel: ‘spet mi ne bo uspelo’ – in jo ustavi."
+},
+
+/* --- 15–21 NOVA IDENTITETA --- */
+
+{
+fact:"Zdaj izbiraš drugače.",
+task:"Naredi eno odločitev zavestno – ne avtomatsko."
+},
+{
+fact:"Telo ti zaupa.",
+task:"Vprašaj telo: kaj danes res potrebuješ?"
+},
+{
+fact:"Upočasnitev je moč.",
+task:"Danes vse delaj 20% počasneje."
+},
+{
+fact:"Nisi več ista.",
+task:"Opazuj, kaj danes delaš drugače kot prej."
+},
+{
+fact:"Zaupanje raste iz izkušenj.",
+task:"Spomni se enega trenutka, ko si bila povezana s sabo."
+},
+{
+fact:"To ni več boj.",
+task:"Danes jej z občutkom miru."
+},
+{
+fact:"To si ti.",
+task:"Zapri oči in začuti: kako se počuti ‘nova jaz’?"
+}
+
+];
+
+// --- OSNOVNO ---
+const validAccessCodes = ["CV2026"];
+
+let currentDayIndex = 0;
+let currentCycle = 0;
+
+const totalCycles = 5;
+const daysPerCycle = 21;
+
+let startDate = null;
+
+// --- HIPNOZE PO CIKLIH ---
+const cycleHypnosis = [
+  ["https://u.pcloud.link/publink/show?code=XZKSS95Z73A45Hf9Q9J7iiR3PEtljpcGAeRV"],
+  ["https://u.pcloud.link/publink/show?code=XZtSS95Zl0wp6VJKQgYa96y6CkwJQXkIbMHk"],
+  ["https://u.pcloud.link/publink/show?code=XZaSS95ZscfUjsSpb6mHNYqpV0bh4zgPSG9V"],
+  ["https://u.pcloud.link/publink/show?code=XZESS95Zw8zlN1BxjmXq9kBBvQ0QkFUJ5zFy"],
+  ["https://u.pcloud.link/publink/show?code=XZISS95ZE0gYjBklvBRSKXJK5wb3H5CiybYk"]
+];
+
+// --- START ---
+document.getElementById("startButton").onclick = () => {
+
+  const code = document.getElementById("accessCode").value.trim();
+  const name = document.getElementById("userName").value.trim();
+  const dateValue = document.getElementById("startDate").value;
+
+  if (!validAccessCodes.includes(code)) {
+    alert("Ta prostor se odpre samo s kodo po nakupu.");
+    return;
+  }
+
+  if (!name || !dateValue) {
+    alert("Izpolni vse podatke.");
+    return;
+  }
+
+  startDate = new Date(dateValue);
+
+  localStorage.setItem("userName", name);
+  localStorage.setItem("startDate", startDate);
+  localStorage.setItem("cycle", 0);
+  localStorage.setItem("day", 0);
+
+  // 👉 onboarding pride PO odklenitvi
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("onboarding").classList.remove("hidden");
+
+  onIndex = 0;
+  showOnboardingScreen();
+};
+
+// --- LOAD STATE ---
+window.onload = () => {
+  const savedDate = localStorage.getItem("startDate");
+  if (savedDate) {
+    startDate = new Date(savedDate);
+    currentCycle = parseInt(localStorage.getItem("cycle")) || 0;
+    currentDayIndex = parseInt(localStorage.getItem("day")) || 0;
+
+    document.getElementById("intro").classList.add("hidden");
+    document.getElementById("journey").classList.remove("hidden");
+
+    updateDay();
+  }
+};
+
+// --- UPDATE DAY ---
+function updateDay() {
+  const globalDay = currentCycle * daysPerCycle + currentDayIndex;
+
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + globalDay);
+
+  document.getElementById("dayDate").valueAsDate = d;
+
+  const tzolkin = getTzolkinForDate(d);
+
+  document.getElementById("dayTitle").textContent =
+    `Cikel ${currentCycle + 1} – Dan ${currentDayIndex + 1}`;
+
+  document.getElementById("dailyFact").textContent =
+    dailyContent[globalDay % 21].fact;
+
+  document.getElementById("dayTask").textContent =
+    dailyContent[globalDay % 21].task;
+
+  // 🔮 slike
+  document.getElementById("tzolkinNumberImg").src = tzolkin.numberImg;
+  document.getElementById("tzolkinSignImg").src = tzolkin.signImg;
+
+  // 🧠 tekst
+  document.getElementById("tzolkinInfo").textContent =
+    `${tzolkin.number} ${tzolkin.sign} – KIN ${tzolkin.kinNumber}`;
+
+  // ✨ pomen (premium občutek)
+  document.getElementById("tzolkinMeaning").textContent =
+    tzolkinMeanings[tzolkin.sign] || "";
+
+  updateHypnosis();
+
+  localStorage.setItem("cycle", currentCycle);
+  localStorage.setItem("day", currentDayIndex);
+}
+
+// --- NAVIGACIJA ---
+function nextDay() {
+  currentDayIndex++;
+
+  if (currentDayIndex >= daysPerCycle) {
+    currentDayIndex = 0;
+    currentCycle++;
+
+    if (currentCycle >= totalCycles) {
+      alert("Zaključila si vseh 5 ciklov ✨");
+      return;
+    } else {
+      alert("Nov cikel ✨");
+    }
+  }
+
+  updateDay();
+}
+
+function prevDay() {
+  if (currentDayIndex > 0) {
+    currentDayIndex--;
+  } else if (currentCycle > 0) {
+    currentCycle--;
+    currentDayIndex = daysPerCycle - 1;
+  }
+
+  updateDay();
+}
+
+// --- TZOLKIN ---
+function getTzolkinForDate(date) {
+  const diffDays = Math.floor((date - anchorDate) / (1000 * 60 * 60 * 24));
+
+  const numberIndex = (anchorTone - 1 + diffDays) % 13;
+  const signIndex = (anchorSignIdx + diffDays) % 20;
+
+  const number = tzolkinNumbers[(numberIndex + 13) % 13];
+  const sign = tzolkinSigns[(signIndex + 20) % 20];
+
+  const numberImg = tzolkinNumberImages[(numberIndex + 13) % 13];
+  const signImg = tzolkinSignImages[(signIndex + 20) % 20];
+
+  const kinNumber = ((signIndex * 13) + numberIndex + 1) % 260;
+
+  return { number, sign, numberImg, signImg, kinNumber };
+}
+
+// --- HIPNOZE ---
+function updateHypnosis() {
+  const container = document.getElementById("hypnosisContainer");
+  container.innerHTML = "";
+
+  if (cycleHypnosis[currentCycle]) {
+    cycleHypnosis[currentCycle].forEach(link => {
+      const btn = document.createElement("button");
+      btn.textContent = "Prenesi hipnozo";
+      btn.onclick = () => window.open(link);
+      container.appendChild(btn);
+    });
+  }
+}
+
+// --- ONBOARDING ---
+function startOnboarding() {
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("onboarding").classList.remove("hidden");
+
+  onIndex = 0;
+  showOnboardingScreen();
+}
+
+function showOnboardingScreen() {
+  document.getElementById("onTitle").textContent = onboardingScreens[onIndex].title;
+  document.getElementById("onText").textContent = onboardingScreens[onIndex].text;
+}
+
+function nextOnboarding() {
+  onIndex++;
+
+  if (onIndex >= onboardingScreens.length) {
+    document.getElementById("onboarding").classList.add("hidden");
+    document.getElementById("journey").classList.remove("hidden");
+
+    // nastavi začetni datum, če še ni
+    if (!startDate) startDate = new Date();
+
+    updateDay();
+    return;
+  }
+
+  showOnboardingScreen();
+}
+
+// --- SERVICE WORKER ---
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+  
+</script>
+</body>
+</html>
