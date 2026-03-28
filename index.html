@@ -510,6 +510,17 @@ window.onload = () => {
   }
 };
 
+// --- SHRANI TRENUTNI VNOS PRED MENJAVO DNEVA ---
+function saveCurrentEntry() {
+  const d = document.getElementById("dayDate").valueAsDate;
+  if (!d) return;
+
+  const key = "entry_" + d.toISOString().split("T")[0];
+  const value = document.getElementById("dailyEntry").value;
+
+  localStorage.setItem(key, value);
+}
+
 // --- UPDATE DAY ---
 function updateDay() {
   const globalDay = currentCycle * daysPerCycle + currentDayIndex;
@@ -552,6 +563,15 @@ function updateDay() {
   localStorage.setItem("cycle", currentCycle);
   localStorage.setItem("day", currentDayIndex);
 }
+
+// --- SHRANJEVANJE VNOSA ---
+document.getElementById("dailyEntry").addEventListener("input", function () {
+  const d = document.getElementById("dayDate").valueAsDate;
+  if (!d) return;
+
+  const key = "entry_" + d.toISOString().split("T")[0];
+  localStorage.setItem(key, this.value);
+});
 
 // --- NAVIGACIJA ---
 function nextDay() {
