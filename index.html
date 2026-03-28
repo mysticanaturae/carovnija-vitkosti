@@ -33,7 +33,15 @@ button { background:#d6336c; color:white; border:none; padding:10px 20px; margin
 #journey {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* prostor med bloki */
+  gap: 15px; /* prej 20px */
+}
+
+textarea {
+  min-height: 60px; /* manj */
+}
+
+.input-block {
+  margin-bottom: 15px;
 }
 
 #journey label, 
@@ -89,6 +97,27 @@ textarea {
   
   .input-block {
   margin-bottom: 20px;
+}
+
+button {
+  background:#d6336c;
+  color:white;
+  border:none;
+  padding:8px 16px; /* manjše */
+  margin:5px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.nav-buttons {
+  position: sticky;
+  bottom: 0;
+  background: #ffe6f0;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #f3c1d9;
 }
   
 </style>
@@ -157,10 +186,9 @@ textarea {
   <!-- HIPNOZA -->
   <div id="hypnosisContainer"></div>
 
- <br>
-<button onclick="prevDay()">Nazaj</button>
-<button onclick="nextDay()">Naprej</button>
-  
+ <div class="nav-buttons">
+  <button onclick="prevDay()">Nazaj</button>
+  <button onclick="nextDay()">Naprej</button>
 </div>
 
 
