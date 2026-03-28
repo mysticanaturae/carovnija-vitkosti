@@ -609,7 +609,6 @@ function nextDay() {
 }
 
 function prevDay() {
-  function prevDay() {
   const currentDate = new Date(startDate);
   currentDate.setDate(currentDate.getDate() + currentCycle * daysPerCycle + currentDayIndex);
   saveDailyEntry(currentDate); // shrani pred premikom
@@ -689,7 +688,6 @@ function nextOnboarding() {
   showOnboardingScreen();
 }
 
-});
 
 // --- SERVICE WORKER ---
 if ("serviceWorker" in navigator) {
