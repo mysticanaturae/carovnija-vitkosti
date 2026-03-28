@@ -567,15 +567,13 @@ function getTzolkinForDate(date) {
   const numberIndex = (anchorTone - 1 + diffDays + numberOffset + 13) % 13;
   const signIndex   = (anchorSignIdx + diffDays + signOffset + 20) % 20;
 
-  const number    = tzolkinNumbers[numberIndex];
-  const sign      = tzolkinSigns[signIndex];
-  const numberImg = tzolkinNumberImages[numberIndex];
-  const signImg   = tzolkinSignImages[signIndex];
-
-  // KIN šteje od 1 do 260, formula: (znak_index * 13 + število_index)
-  const kinNumber = ((signIndex * 13 + numberIndex) % 260) 1;
-
-  return { number, sign, numberImg, signImg, kinNumber };
+  return {
+    number: tzolkinNumbers[numberIndex],
+    sign: tzolkinSigns[signIndex],
+    numberImg: tzolkinNumberImages[numberIndex],
+    signImg: tzolkinSignImages[signIndex],
+    kinNumber: (diffDays + anchorTone) // lahko odstraniš KIN če ga ne rabiš
+  };
 }
 
 // --- HIPNOZE ---
