@@ -462,14 +462,22 @@ document.getElementById("startButton").onclick = () => {
   showOnboardingScreen();
 };
 
-// --- SHRANI VNOS ---
-function saveDailyEntry(date) {
-  const entry = document.getElementById("dailyEntry").value.trim();
-  if (!date) return;
+function saveCurrentEntry() {
+  const d = document.getElementById("dayDate").valueAsDate;
+  if (!d) return;
 
-  // ključ po datumu YYYY-MM-DD
-  const key = "entry_" + date.toISOString().split("T")[0];
-  localStorage.setItem(key, entry);
+  const key = "entry_" + d.toISOString().split("T")[0];
+
+  const entryData = {
+    telo: document.getElementById("inputTelo").value,
+    um: document.getElementById("inputUm").value,
+    dusa: document.getElementById("inputDusa").value,
+    duh: document.getElementById("inputDuh").value,
+    spoznanja: document.getElementById("inputSpoznanja").value,
+    koledar: document.getElementById("inputKoledar").value
+  };
+
+  localStorage.setItem(key, JSON.stringify(entryData));
 }
 
 // --- NALOŽI VNOS ---
