@@ -432,6 +432,7 @@ const cycleHypnosis = [
 
 // --- START ---
 document.getElementById("startButton").onclick = () => {
+
   const code = document.getElementById("accessCode").value.trim();
   const name = document.getElementById("userName").value.trim();
   const dateValue = document.getElementById("startDate").value;
@@ -453,6 +454,7 @@ document.getElementById("startButton").onclick = () => {
   localStorage.setItem("cycle", 0);
   localStorage.setItem("day", 0);
 
+  // 👉 onboarding pride PO odklenitvi
   document.getElementById("intro").classList.add("hidden");
   document.getElementById("onboarding").classList.remove("hidden");
 
@@ -460,58 +462,15 @@ document.getElementById("startButton").onclick = () => {
   showOnboardingScreen();
 };
 
-// ===============================
- 🌿 DNEVNI VNOSI (FIXED)
- 
- ===============================funkcija saveCurrentEntry() {
- const d = dokument.getElementById ("dayDate").valueAsDate;
- če (!d) vrnitev;
+// --- SHRANI VNOS ---
+function saveDailyEntry(date) {
+  const entry = document.getElementById("dailyEntry").value.trim();
+  if (!date) return;
 
- const  ključ  = "entry_" + d.v ISOString().split("T")[0];
-
- const data = {
- telo: document.getElementById("feedBody").Vrednost,
- hm: dokument.getElementById ("feedMind").Vrednost,
- DUSA: dokument.getElementById ("feedSoul").Vrednost,
- seveda: dokument.getElementById ("feedSpirit").Vrednost,
- Spoznanja: Dokument.getElementById ("opazke").Vrednost,
- Koledar: dokument.getElementById ("razpored").Vrednost, masaža: 
-dokument.getElementById ("masaža").Preverjeno,
- hipnoza: dokument.getElementById (»hipnoza«).Preverjeno, drugo: 
-dokument.getElementById ("drugo").preverjeno
- };
-
- localStorage.setItem(key, JSON.stringify(data));
+  // ključ po datumu YYYY-MM-DD
+  const key = "entry_" + date.toISOString().split("T")[0];
+  localStorage.setItem(key, entry);
 }
-
-function loadDailyEntry(d) {
-  const key = "entry_" + d.toISOString().split("T")[0];
-  const data = JSON.parse(localStorage.getItem(key) || "{}");
-
-  document.getElementById("feedBody").value = data.telo || "";
-  document.getElementById("feedMind").value = data.um || "";
-  document.getElementById("feedSoul").value = data.dusa || "";
-  document.getElementById("feedSpirit").value = data.duh || "";
-  document.getElementById("observations").value = data.spoznanja || "";
-  document.getElementById("schedule").value = data.koledar || "";
-
-  document.getElementById("massage").checked = data.massage || false;
-  document.getElementById("hypnosis").checked = data.hypnosis || false;
-  document.getElementById("other").checked = data.other || false;
-}
-
-// AUTO SAVE
-[
-"feedBody","feedMind","feedSoul","feedSpirit",
-"observations","schedule",
-"massage","hypnosis","other"
-].forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-
-  el.addEventListener("input", saveCurrentEntry);
-  el.addEventListener("change", saveCurrentEntry);
-});
 
 // --- NALOŽI VNOS ---
 function loadDailyEntry(date) {
@@ -521,10 +480,9 @@ function loadDailyEntry(date) {
   document.getElementById("dailyEntry").value = saved;
 }
 
-// ===============================
-// 🔄 LOAD STATE
-// ===============================
+// --- LOAD STATE ---
 window.onload = () => {
+  // vedno najprej skrij vse
   document.getElementById("intro").classList.add("hidden");
   document.getElementById("onboarding").classList.add("hidden");
   document.getElementById("journey").classList.add("hidden");
@@ -543,20 +501,17 @@ window.onload = () => {
       updateDay();
     } else {
       document.getElementById("onboarding").classList.remove("hidden");
+      onIndex = 0;
       showOnboardingScreen();
     }
   } else {
+    // če še ni nič shranjeno → pokaži intro
     document.getElementById("intro").classList.remove("hidden");
   }
 };
 
-// ===============================
-// 🔮 UPDATE DAY (FIXED)
-// ===============================
+// --- UPDATE DAY ---
 function updateDay() {
-
-  saveCurrentEntry(); // 🔑 KLJUČNO
-
   const globalDay = currentCycle * daysPerCycle + currentDayIndex;
 
   const d = new Date(startDate);
@@ -575,26 +530,30 @@ function updateDay() {
   document.getElementById("dayTask").textContent =
     dailyContent[globalDay % 21].task;
 
+  // 🔮 slike
   document.getElementById("tzolkinNumberImg").src = tzolkin.numberImg;
   document.getElementById("tzolkinSignImg").src = tzolkin.signImg;
 
+  // 🧠 tekst
   document.getElementById("tzolkinInfo").textContent =
     `${tzolkin.number} ${tzolkin.sign}`;
 
+  // ✨ pomen (premium občutek)
   document.getElementById("tzolkinMeaning").textContent =
     tzolkinMeanings[tzolkin.sign] || "";
 
   updateHypnosis();
 
-  loadDailyEntry(d); // 🔑 PRAVILNO NALAGANJE
+// 🔹 POČISTI input za dnevnik pred nalaganjem vnosa
+  const dailyInput = document.getElementById("dailyEntry");
+  dailyInput.value = "";        // vedno najprej počisti
+  loadDailyEntry(d);            // nato naloži vnos za ta datum
 
   localStorage.setItem("cycle", currentCycle);
   localStorage.setItem("day", currentDayIndex);
 }
 
-// ===============================
-// ⏭ NAVIGACIJA
-// ===============================
+// --- NAVIGACIJA ---
 function nextDay() {
   currentDayIndex++;
 
@@ -605,6 +564,8 @@ function nextDay() {
     if (currentCycle >= totalCycles) {
       alert("Zaključila si vseh 5 ciklov ✨");
       return;
+    } else {
+      alert("Nov cikel ✨");
     }
   }
 
@@ -716,4 +677,3 @@ if ("serviceWorker" in navigator) {
 </script>
 </body>
 </html>
-
