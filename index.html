@@ -879,6 +879,7 @@ function getTzolkinForDate(date) {
 }
 
 // --- HIPNOZE ---
+// --- HIPNOZE ---
 function updateHypnosis() {
   const container = document.getElementById("hypnosisContainer");
   container.innerHTML = "";
@@ -888,8 +889,7 @@ function updateHypnosis() {
       const btn = document.createElement("button");
       btn.textContent = "Poslušaj hipnozo";
 
-      btn.onclick = () => openHypnosis(link);
-
+      btn.onclick = () => openHypnosis(link);  // pošlje URL
       container.appendChild(btn);
     });
   }
@@ -897,7 +897,6 @@ function updateHypnosis() {
 
 function openHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
-  const frame = document.getElementById("hypnosisFrame");
 
   player.innerHTML = `
     <div style="text-align:center; color:white; max-width:500px;">
@@ -922,15 +921,8 @@ function openHypnosis(url) {
   player.classList.remove("hidden");
 }
 
-function startHypnosis() {
+function startHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
-
-  if(currentCycle >= hypnosisUrls.length) {
-    player.innerHTML = "<p style='color:white;'>Vsi cikli so zaključeni!</p>";
-    return;
-  }
-
-  const url = hypnosisUrls[currentCycle];
 
   player.innerHTML = `
     <div style="text-align:center; color:white; width:90%; max-width:600px;">
@@ -950,7 +942,7 @@ function closeHypnosis() {
   // premakni se na naslednji cikel
   currentCycle++;
 
-  // lahko dodaš avtomatski update v dnevnik ali trigger za naslednji dan
+  // osveži dnevnik / update
   updateDailyLog(currentCycle);
 }
 
