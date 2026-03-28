@@ -120,10 +120,6 @@ button {
   border-top: 1px solid #f3c1d9;
 }
 
-<button id="exportBtn">Izvozi svoj dnevnik</button>
-
-<button id="toggleTheme">Dark / Light Mode</button>
-
 .progress-bar {
   width: 100%;
   height: 12px;
@@ -160,9 +156,11 @@ button:hover {
 #journey, #onboarding {
   transition: opacity 0.5s ease;
 }
+
 .hidden {
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.5s ease;
 }
 
 <p style="text-align:center; font-family:'Georgia', serif; font-size:14px; color:#666; margin-top:30px;">
@@ -235,6 +233,11 @@ button:hover {
 
 <div id="cycleProgress" class="progress-bar">
   <div id="cycleProgressFill"></div>
+</div>
+
+<div style="text-align:center; margin:20px 0;">
+  <button id="exportBtn">Izvozi svoj dnevnik</button>
+  <button id="toggleTheme">Dark / Light Mode</button>
 </div>
 
   <!-- HIPNOZA -->
