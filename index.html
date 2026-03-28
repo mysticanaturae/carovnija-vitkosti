@@ -762,6 +762,17 @@ function updateDay() {
   updateCycleProgress();  // dodamo vizualni napredek
 }
 
+function closeHypnosis() {
+  const player = document.getElementById("hypnosisPlayer");
+  player.innerHTML = ""; // počisti player
+
+  // premakni se na naslednji cikel
+  currentCycle++;
+
+  // lahko dodaš avtomatski update v dnevnik ali trigger za naslednji dan
+  updateDailyLog(currentCycle);
+}
+
 // 🔹 POČISTI input za dnevnik pred nalaganjem vnosa
   loadDailyEntry(d);            // nato naloži vnos za ta datum
 
@@ -911,23 +922,36 @@ function openHypnosis(url) {
   player.classList.remove("hidden");
 }
 
-function startHypnosis(url) {
+function startHypnosis() {
   const player = document.getElementById("hypnosisPlayer");
+
+  if(currentCycle >= hypnosisUrls.length) {
+    player.innerHTML = "<p style='color:white;'>Vsi cikli so zaključeni!</p>";
+    return;
+  }
+
+  const url = hypnosisUrls[currentCycle];
 
   player.innerHTML = `
     <div style="text-align:center; color:white; width:90%; max-width:600px;">
-      
-      <h2 style="font-family:'Great Vibes'; font-size:30px;">
-        Samo bodi
-      </h2>
-
+      <h2 style="font-family:'Great Vibes'; font-size:30px;">Samo bodi</h2>
       <audio id="hypnoAudio" controls autoplay style="width:100%; margin:20px 0;">
         <source src="${url}" type="audio/mpeg">
       </audio>
-
       <button onclick="closeHypnosis()">Zaključi</button>
     </div>
   `;
+}
+
+function closeHypnosis() {
+  const player = document.getElementById("hypnosisPlayer");
+  player.innerHTML = ""; // počisti player
+
+  // premakni se na naslednji cikel
+  currentCycle++;
+
+  // lahko dodaš avtomatski update v dnevnik ali trigger za naslednji dan
+  updateDailyLog(currentCycle);
 }
 
 // --- ONBOARDING ---
