@@ -557,8 +557,8 @@ function prevDay() {
 }
 
 // --- OFFSETI ---
-const numberOffset = 1; // za število
-const signOffset = 2;   // za znak
+const numberOffset = 0; // za število
+const signOffset = -1;   // za znak
 
 function getTzolkinForDate(date) {
   const diffDays = Math.floor((date - anchorDate) / (1000*60*60*24));
