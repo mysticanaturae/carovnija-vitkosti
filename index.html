@@ -515,11 +515,11 @@ let startDate = null;
 
 // --- HIPNOZE PO CIKLIH ---
 const cycleHypnosis = [
-  ["https://u.pcloud.link/publink/show?code=XZKSS95Z73A45Hf9Q9J7iiR3PEtljpcGAeRV"],
-  ["https://u.pcloud.link/publink/show?code=XZtSS95Zl0wp6VJKQgYa96y6CkwJQXkIbMHk"],
-  ["https://u.pcloud.link/publink/show?code=XZaSS95ZscfUjsSpb6mHNYqpV0bh4zgPSG9V"],
-  ["https://u.pcloud.link/publink/show?code=XZESS95Zw8zlN1BxjmXq9kBBvQ0QkFUJ5zFy"],
-  ["https://u.pcloud.link/publink/show?code=XZISS95ZE0gYjBklvBRSKXJK5wb3H5CiybYk"]
+  ["https://download.pcloud.com/BlinkitArt-BinarnaHipnoza-Aktivacija12nitniDNK.mp3"],
+  ["https://download.pcloud.com/...drugi_cikel.mp3"],
+  ["https://download.pcloud.com/...tretji_cikel.mp3"],
+  ["https://download.pcloud.com/...cikel4.mp3"],
+  ["https://download.pcloud.com/...cikel5.mp3"]
 ];
 
 // --- START ---
@@ -879,7 +879,6 @@ function getTzolkinForDate(date) {
 }
 
 // --- HIPNOZE ---
-// --- HIPNOZE ---
 function updateHypnosis() {
   const container = document.getElementById("hypnosisContainer");
   container.innerHTML = "";
@@ -925,12 +924,19 @@ function startHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
 
   player.innerHTML = `
-    <div style="text-align:center; color:white; width:90%; max-width:600px;">
-      <h2 style="font-family:'Great Vibes'; font-size:30px;">Samo bodi</h2>
-      <audio id="hypnoAudio" controls autoplay style="width:100%; margin:20px 0;">
-        <source src="${url}" type="audio/mpeg">
-      </audio>
-      <button onclick="closeHypnosis()">Zaključi</button>
+    <div style="width:90%; max-width:800px; text-align:center;">
+      
+      <iframe 
+        src="${url}" 
+        width="100%" 
+        height="500" 
+        frameborder="0"
+        allow="autoplay">
+      </iframe>
+
+      <button onclick="closeHypnosis()" style="margin-top:15px;">
+        Zaključi
+      </button>
     </div>
   `;
 }
