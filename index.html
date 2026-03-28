@@ -572,8 +572,8 @@ function getTzolkinForDate(date) {
   const numberImg = tzolkinNumberImages[numberIndex];
   const signImg   = tzolkinSignImages[signIndex];
 
-  // KIN šteje od 1 do 260, formula: (znak_index * 13 + število_index) + 1
-  const kinNumber = ((signIndex * 13 + numberIndex) % 260) + 1;
+  // KIN šteje od 1 do 260, formula: (znak_index * 13 + število_index)
+  const kinNumber = ((signIndex * 13 + numberIndex) % 260) 1;
 
   return { number, sign, numberImg, signImg, kinNumber };
 }
