@@ -430,28 +430,58 @@ const cycleHypnosis = [
   ["https://u.pcloud.link/publink/show?code=XZISS95ZE0gYjBklvBRSKXJK5wb3H5CiybYk"]
 ];
 
+// --- START ---
+document.getElementById("startButton").onclick = () => {
+  const code = document.getElementById("accessCode").value.trim();
+  const name = document.getElementById("userName").value.trim();
+  const dateValue = document.getElementById("startDate").value;
+
+  if (!validAccessCodes.includes(code)) {
+    alert("Ta prostor se odpre samo s kodo po nakupu.");
+    return;
+  }
+
+  if (!name || !dateValue) {
+    alert("Izpolni vse podatke.");
+    return;
+  }
+
+  startDate = new Date(dateValue);
+
+  localStorage.setItem("userName", name);
+  localStorage.setItem("startDate", startDate);
+  localStorage.setItem("cycle", 0);
+  localStorage.setItem("day", 0);
+
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("onboarding").classList.remove("hidden");
+
+  onIndex = 0;
+  showOnboardingScreen();
+};
+
 // ===============================
-// 🌿 DNEVNI VNOSI (FIXED)
-// ===============================
-function saveCurrentEntry() {
-  const d = document.getElementById("dayDate").valueAsDate;
-  if (!d) return;
+ 🌿 DNEVNI VNOSI (FIXED)
+ 
+ ===============================funkcija saveCurrentEntry() {
+ const d = dokument.getElementById ("dayDate").valueAsDate;
+ če (!d) vrnitev;
 
-  const key = "entry_" + d.toISOString().split("T")[0];
+ const  ključ  = "entry_" + d.v ISOString().split("T")[0];
 
-  const data = {
-    telo: document.getElementById("feedBody").value,
-    um: document.getElementById("feedMind").value,
-    dusa: document.getElementById("feedSoul").value,
-    duh: document.getElementById("feedSpirit").value,
-    spoznanja: document.getElementById("observations").value,
-    koledar: document.getElementById("schedule").value,
-    massage: document.getElementById("massage").checked,
-    hypnosis: document.getElementById("hypnosis").checked,
-    other: document.getElementById("other").checked
-  };
+ const data = {
+ telo: document.getElementById("feedBody").Vrednost,
+ hm: dokument.getElementById ("feedMind").Vrednost,
+ DUSA: dokument.getElementById ("feedSoul").Vrednost,
+ seveda: dokument.getElementById ("feedSpirit").Vrednost,
+ Spoznanja: Dokument.getElementById ("opazke").Vrednost,
+ Koledar: dokument.getElementById ("razpored").Vrednost, masaža: 
+dokument.getElementById ("masaža").Preverjeno,
+ hipnoza: dokument.getElementById (»hipnoza«).Preverjeno, drugo: 
+dokument.getElementById ("drugo").preverjeno
+ };
 
-  localStorage.setItem(key, JSON.stringify(data));
+ localStorage.setItem(key, JSON.stringify(data));
 }
 
 function loadDailyEntry(d) {
@@ -483,37 +513,13 @@ function loadDailyEntry(d) {
   el.addEventListener("change", saveCurrentEntry);
 });
 
-// ===============================
-// 🚀 START
-// ===============================
-document.getElementById("startButton").onclick = () => {
-  const code = document.getElementById("accessCode").value.trim();
-  const name = document.getElementById("userName").value.trim();
-  const dateValue = document.getElementById("startDate").value;
-
-  if (!validAccessCodes.includes(code)) {
-    alert("Ta prostor se odpre samo s kodo po nakupu.");
-    return;
-  }
-
-  if (!name || !dateValue) {
-    alert("Izpolni vse podatke.");
-    return;
-  }
-
-  startDate = new Date(dateValue);
-
-  localStorage.setItem("userName", name);
-  localStorage.setItem("startDate", startDate);
-  localStorage.setItem("cycle", 0);
-  localStorage.setItem("day", 0);
-
-  document.getElementById("intro").classList.add("hidden");
-  document.getElementById("onboarding").classList.remove("hidden");
-
-  onIndex = 0;
-  showOnboardingScreen();
-};
+// --- NALOŽI VNOS ---
+function loadDailyEntry(date) {
+  if (!date) return;
+  const key = "entry_" + date.toISOString().split("T")[0];
+  const saved = localStorage.getItem(key) || "";
+  document.getElementById("dailyEntry").value = saved;
+}
 
 // ===============================
 // 🔄 LOAD STATE
@@ -615,6 +621,98 @@ function prevDay() {
 
   updateDay();
 }
+
+// --- OFFSETI ---
+const numberOffset = 0; // za število
+const signOffset = -1;   // za znak
+
+function getTzolkinForDate(date) {
+  const diffDays = Math.floor((date - anchorDate) / (1000*60*60*24));
+
+  // indexi z offseti
+  const numberIndex = (anchorTone - 1 + diffDays + numberOffset + 13) % 13;
+  const signIndex   = (anchorSignIdx + diffDays + signOffset + 20) % 20;
+
+  return {
+    number: tzolkinNumbers[numberIndex],
+    sign: tzolkinSigns[signIndex],
+    numberImg: tzolkinNumberImages[numberIndex],
+    signImg: tzolkinSignImages[signIndex],
+  };
+}
+
+// --- HIPNOZE ---
+function updateHypnosis() {
+  const container = document.getElementById("hypnosisContainer");
+  container.innerHTML = "";
+
+  if (cycleHypnosis[currentCycle]) {
+    cycleHypnosis[currentCycle].forEach(link => {
+      const btn = document.createElement("button");
+      btn.textContent = "Prenesi hipnozo";
+      btn.onclick = () => window.open(link);
+      container.appendChild(btn);
+    });
+  }
+}
+
+// --- ONBOARDING ---
+function startOnboarding() {
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("onboarding").classList.remove("hidden");
+
+  onIndex = 0;
+  showOnboardingScreen();
+}
+
+function showOnboardingScreen() {
+  document.getElementById("onTitle").textContent = onboardingScreens[onIndex].title;
+  document.getElementById("onText").textContent = onboardingScreens[onIndex].text;
+}
+
+function nextOnboarding() {
+  onIndex++;
+
+  if (onIndex >= onboardingScreens.length) {
+    document.getElementById("onboarding").classList.add("hidden");
+    document.getElementById("journey").classList.remove("hidden");
+
+    // nastavi začetni datum, če še ni
+    if (!startDate) startDate = new Date();
+
+    updateDay();
+    return;
+  }
+
+  showOnboardingScreen();
+}
+
+document.getElementById("dailyEntry").addEventListener("input", () => {
+  const currentDate = document.getElementById("dayDate").valueAsDate;
+  saveDailyEntry(currentDate);
+});
+
+// --- SERVICE WORKER ---
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+
+// --- AUTOMATSKI PREMIUM FOOTER ---
+(function() {
+  const footer = document.createElement("footer");
+  footer.style.textAlign = "center";
+  footer.style.fontFamily = "'Georgia', serif";
+  footer.style.fontSize = "14px";
+  footer.style.color = "#555";
+  footer.style.fontStyle = "italic";
+  footer.style.textShadow = "0 1px 1px rgba(0,0,0,0.1)";
+  footer.style.marginTop = "40px";
+  footer.style.padding = "20px 0";
+
+  footer.textContent = "BLINKITA – BLINKITA BODY – ČAROVNIJA VITKOSTI, 2026";
+
+  document.body.appendChild(footer);
+})();
 </script>
 </body>
 </html>
