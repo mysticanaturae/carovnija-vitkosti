@@ -924,24 +924,30 @@ function updateHypnosis() {
 
 function openHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
+
   player.innerHTML = `
-    <div style="width:90%; max-width:800px; text-align:center; color:white;">
+    <div style="text-align:center; color:white; max-width:500px;">
       <h2 style="font-family:'Great Vibes'; font-size:32px;">Vstopi vase</h2>
-      <p style="margin:20px 0;">Zapri oči.<br>Vdihni.<br>In se zavestno odloči, da si tukaj.</p>
-      <audio controls autoplay style="width:100%;">
-        <source src="${url}" type="audio/mpeg">
-      </audio>
-      <button onclick="closeHypnosis()" style="margin-top:15px;">Zaključi</button>
+      
+      <p style="margin:20px 0;">
+        Zapri oči.<br>
+        Vdihni.<br>
+        In se zavestno odloči, da si tukaj.
+      </p>
+
+      <button onclick="startHypnosis('${url}')" style="margin-top:20px;">
+        Začni
+      </button>
+
+      <button onclick="closeHypnosis()" style="margin-top:10px; opacity:0.7;">
+        Zapri
+      </button>
     </div>
   `;
+
   player.classList.remove("hidden");
 }
 
-function closeHypnosis() {
-  const player = document.getElementById("hypnosisPlayer");
-  player.classList.add("hidden"); // skrij modal, ne briši vse
-  player.innerHTML = "";          // počisti vsebino modal okna
-}
 function startHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
 
