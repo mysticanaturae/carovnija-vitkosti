@@ -174,8 +174,19 @@ button:hover {
 }
 
 #hypnosisPlayer {
-  backdrop-filter: blur(10px);
-  animation: fadeIn 0.6s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.hidden {
+  display: none;
 }
 
 @keyframes fadeIn {
@@ -832,8 +843,25 @@ function showDailyReminder() {
 }
 
 window.onload = () => {
+  // preveri ali je uporabnik že vpisan
+  const savedName = localStorage.getItem("userName");
+  const savedDate = localStorage.getItem("startDate");
+
+  if (savedName && savedDate) {
+    startDate = new Date(savedDate);
+    document.getElementById("intro").classList.add("hidden");
+    document.getElementById("onboarding").classList.add("hidden");
+    document.getElementById("journey").classList.remove("hidden");
+
+    currentCycle = parseInt(localStorage.getItem("cycle")) || 0;
+    currentDayIndex = parseInt(localStorage.getItem("day")) || 0;
+    updateDay();
+  } else {
+    document.getElementById("intro").classList.remove("hidden");
+  }
+
   askNotificationPermission();
-  showDailyReminder();  // prikaz enkrat na dan
+  showDailyReminder();
 };
 
 function fadeIn(element) {
@@ -896,28 +924,23 @@ function updateHypnosis() {
 
 function openHypnosis(url) {
   const player = document.getElementById("hypnosisPlayer");
-
   player.innerHTML = `
-    <div style="text-align:center; color:white; max-width:500px;">
+    <div style="width:90%; max-width:800px; text-align:center; color:white;">
       <h2 style="font-family:'Great Vibes'; font-size:32px;">Vstopi vase</h2>
-      
-      <p style="margin:20px 0;">
-        Zapri oči.<br>
-        Vdihni.<br>
-        In se zavestno odloči, da si tukaj.
-      </p>
-
-      <button onclick="startHypnosis('${url}')" style="margin-top:20px;">
-        Začni
-      </button>
-
-      <button onclick="closeHypnosis()" style="margin-top:10px; opacity:0.7;">
-        Zapri
-      </button>
+      <p style="margin:20px 0;">Zapri oči.<br>Vdihni.<br>In se zavestno odloči, da si tukaj.</p>
+      <audio controls autoplay style="width:100%;">
+        <source src="${url}" type="audio/mpeg">
+      </audio>
+      <button onclick="closeHypnosis()" style="margin-top:15px;">Zaključi</button>
     </div>
   `;
-
   player.classList.remove("hidden");
+}
+
+function closeHypnosis() {
+  const player = document.getElementById("hypnosisPlayer");
+  player.classList.add("hidden"); // skrij modal, ne briši vse
+  player.innerHTML = "";          // počisti vsebino modal okna
 }
 
 function startHypnosis(url) {
